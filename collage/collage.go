@@ -1,4 +1,4 @@
-package main
+package collage
 
 import (
 	"fmt"
@@ -12,8 +12,8 @@ import (
 	"github.com/fogleman/gg"
 )
 
-func main() {
-	dir := "images"
+func Build() {
+	dir := "/home/rcy/Pictures/Screenshots"
 	output := "collage.png"
 	width, height := 1600, 1200
 
@@ -29,6 +29,8 @@ func main() {
 	for _, file := range files {
 		if !file.IsDir() {
 			imgPath := filepath.Join(dir, file.Name())
+			fmt.Printf("processing image %s\n", imgPath)
+
 			img, err := gg.LoadImage(imgPath)
 			if err != nil {
 				fmt.Println("Error loading image:", err)
@@ -36,12 +38,13 @@ func main() {
 			}
 
 			rotateAngle := rand.Float64()*20 - 10
-			rotatedImg := imaging.Rotate(img, rotateAngle, image.Transparent)
+			rotatedImg := imaging.Resize(img, 100, 100, imaging.Lanczos)
+			finalImg := imaging.Rotate(rotatedImg, rotateAngle, image.Transparent)
 
-			x := rand.Float64() * float64(width-rotatedImg.Bounds().Dx())
-			y := rand.Float64() * float64(height-rotatedImg.Bounds().Dy())
+			x := rand.Float64() * float64(width-finalImg.Bounds().Dx())
+			y := rand.Float64() * float64(height-finalImg.Bounds().Dy())
 
-			dc.DrawImage(rotatedImg, int(x), int(y))
+			dc.DrawImage(finalImg, int(x), int(y))
 		}
 	}
 
